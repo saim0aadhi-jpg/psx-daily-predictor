@@ -1,0 +1,10 @@
+{
+  "name": "PSX Daily Predictor",
+  "short_name": "PSX Predictor",
+  "description": "PSX watchlist and daily forecast prototype",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "icons": []
+}
