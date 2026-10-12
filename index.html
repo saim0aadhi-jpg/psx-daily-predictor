@@ -1,95 +1,359 @@
+
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0b1220">
-<meta name="description" content="PSX watchlist and daily forecast prototype">
+<meta name="description" content="PSX Daily Predictor historical stock research">
 <link rel="manifest" href="manifest.json">
 <title>PSX Daily Predictor</title>
+
 <style>
-:root{color-scheme:dark;--bg:#0b1220;--panel:#121c2d;--muted:#9caec4;--line:#26364d;--green:#34d399;--red:#fb7185;--amber:#fbbf24}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#eef4ff;font:15px system-ui,-apple-system,Segoe UI,sans-serif}
-header{padding:22px 18px 16px;background:linear-gradient(145deg,#12213a,#0b1220);border-bottom:1px solid var(--line)}
-.eyebrow{color:#83a6d8;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
-h1{margin:7px 0 4px;font-size:25px;letter-spacing:-.5px}header p{margin:0;color:var(--muted);font-size:13px}
-main{max-width:780px;margin:auto;padding:16px;display:grid;gap:14px}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:15px}
-.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.title{font-size:16px;font-weight:750}.muted{color:var(--muted);font-size:12px}
-.pill{border-radius:99px;padding:5px 9px;font-size:11px;font-weight:800;background:#29364b;color:#cbd5e1}
-.up{color:var(--green);background:#10382f}.down{color:var(--red);background:#421f2b}.flat{color:var(--amber);background:#40351b}
-.list{display:grid;gap:9px;margin-top:13px}.stock{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;background:#0e1726}
-.symbol{font-size:16px;font-weight:800}.company{font-size:11px;color:var(--muted);margin-top:2px}.right{text-align:right}.price{font-weight:750;font-variant-numeric:tabular-nums}.small{font-size:11px;color:var(--muted);margin-top:3px}
-button{border:0;border-radius:11px;padding:12px 14px;background:#2563eb;color:white;font-weight:750;font-size:14px;cursor:pointer}button.secondary{background:#24334a;color:#dce8fa}button:active{opacity:.8}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-select,input{background:#0b1423;border:1px solid var(--line);border-radius:9px;color:#eef4ff;padding:10px;width:100%;font:inherit}
-label{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}
-.notice{font-size:12px;line-height:1.5;color:#d5c7a2;background:#342c1b;border:1px solid #62502a;padding:11px;border-radius:11px}
-.statgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:12px}.stat{background:#0d1726;border:1px solid var(--line);border-radius:11px;padding:12px}.stat b{display:block;font-size:18px;margin-top:4px}
-footer{text-align:center;color:#71839b;font-size:11px;padding:10px 20px 30px}
-.hidden{display:none!important}
+:root {
+  color-scheme: dark;
+  --bg: #0b1220;
+  --panel: #121c2d;
+  --muted: #9caec4;
+  --line: #26364d;
+  --green: #34d399;
+  --red: #fb7185;
+  --amber: #fbbf24;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: #eef4ff;
+  font: 15px system-ui, sans-serif;
+}
+header {
+  padding: 22px 18px 16px;
+  background: linear-gradient(145deg,#12213a,#0b1220);
+  border-bottom: 1px solid var(--line);
+}
+.eyebrow {
+  color: #83a6d8; font-size: 11px; font-weight: 800;
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+h1 { margin: 7px 0 4px; font-size: 25px; }
+header p, .muted { color: var(--muted); font-size: 12px; }
+header p { margin: 0; font-size: 13px; }
+main {
+  max-width: 850px; margin: auto; padding: 16px;
+  display: grid; gap: 14px;
+}
+.panel {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 16px; padding: 15px;
+}
+.row {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 10px;
+}
+.title { font-size: 16px; font-weight: 750; }
+.pill {
+  display: inline-block; border-radius: 99px; padding: 5px 9px;
+  font-size: 11px; font-weight: 800; background: #29364b;
+  color: #cbd5e1;
+}
+.up { color: var(--green); background: #10382f; }
+.down { color: var(--red); background: #421f2b; }
+.flat { color: var(--amber); background: #40351b; }
+.notice {
+  font-size: 12px; line-height: 1.6; color: #f5dca0;
+  background: #342c1b; border: 1px solid #62502a;
+  padding: 12px; border-radius: 11px;
+}
+.list { display: grid; gap: 10px; margin-top: 14px; }
+.stock {
+  padding: 13px; border: 1px solid var(--line);
+  border-radius: 12px; background: #0e1726;
+}
+.stockhead {
+  display: flex; justify-content: space-between;
+  align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.symbol { font-size: 17px; font-weight: 800; }
+.company { color: var(--muted); font-size: 11px; margin-top: 2px; }
+.metrics {
+  display: grid; grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 8px; margin-top: 12px;
+}
+.metric {
+  background: #111e30; border-radius: 9px; padding: 9px;
+  min-width: 0;
+}
+.metric span { display: block; color: var(--muted); font-size: 10px; }
+.metric b { display: block; margin-top: 4px; font-size: 13px; overflow-wrap: anywhere; }
+button, select {
+  border: 0; border-radius: 10px; padding: 12px;
+  font: inherit; font-size: 13px;
+}
+button {
+  background: #2563eb; color: white; font-weight: 750;
+  cursor: pointer;
+}
+button.secondary { background: #24334a; color: #dce8fa; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+select {
+  width: 100%; margin-top: 7px; color: #eef4ff;
+  background: #0b1423; border: 1px solid var(--line);
+}
+.statgrid {
+  display: grid; grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 9px; margin-top: 12px;
+}
+.stat {
+  background: #0d1726; border: 1px solid var(--line);
+  border-radius: 11px; padding: 12px; min-width: 0;
+}
+.stat b { display: block; font-size: 17px; margin-top: 5px; overflow-wrap: anywhere; }
+.status { margin-top: 12px; line-height: 1.5; }
+footer {
+  text-align: center; color: #71839b;
+  font-size: 11px; padding: 10px 20px 30px;
+}
+@media (max-width: 430px) {
+  .metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
 </style>
 </head>
+
 <body>
 <header>
-  <div class="eyebrow">Market research • Prototype</div>
+  <div class="eyebrow">Historical market research</div>
   <h1>PSX Daily Predictor</h1>
-  <p>Your watchlist, next-session outlook and forecast journal.</p>
+  <p>Stock indicators and technical research signals</p>
 </header>
+
 <main>
-  <div class="notice"><b>Demo mode:</b> This build does not fetch live PSX prices or produce validated forecasts. Values and signals shown below are illustrative placeholders. Do not trade from this demo.</div>
+  <div class="notice">
+    <b>Important:</b> This app currently displays historical research data,
+    not live PSX prices. Technical signals are not guaranteed predictions
+    or investment advice. Verify current prices before making any trade.
+  </div>
+
   <section class="panel">
-    <div class="row"><div><div class="title">My watchlist</div><div class="muted">10 starter symbols • edit your list below</div></div><span class="pill">DEMO</span></div>
+    <div class="row">
+      <div>
+        <div class="title">PSX Research Watchlist</div>
+        <div class="muted" id="dataDate">Connecting to research data...</div>
+      </div>
+      <span class="pill" id="connection">CONNECTING</span>
+    </div>
+
+    <div class="actions">
+      <button id="refreshBtn">Refresh research data</button>
+    </div>
+    <div class="muted status" id="status" aria-live="polite">
+      Loading historical indicators...
+    </div>
     <div class="list" id="stocks"></div>
-    <div class="actions"><button id="editBtn" class="secondary">Edit watchlist</button><button id="refreshBtn">Refresh demo view</button></div>
-    <div id="editArea" class="hidden">
-      <label for="symbols">Symbols, separated by commas</label>
-      <input id="symbols" value="UBL, MEBL, MCB, HBL, FFC, EFERT, OGDC, PPL, LUCK, HUBC">
-      <div class="actions"><button id="saveBtn">Save watchlist</button></div>
-    </div>
   </section>
+
   <section class="panel">
-    <div class="title">Daily forecast</div>
-    <div class="muted">Forecast detail view • placeholder example</div>
-    <label for="detail">Choose a share</label><select id="detail"></select>
+    <div class="title">Stock Research Details</div>
+    <div class="muted">Select a stock to review its technical indicators.</div>
+
+    <label for="detail">Choose stock</label>
+    <select id="detail">
+      <option value="">Waiting for data...</option>
+    </select>
+
     <div class="statgrid">
-      <div class="stat"><span class="muted">Expected direction</span><b id="direction">Unverified</b></div>
-      <div class="stat"><span class="muted">Confidence</span><b>Not available</b></div>
-      <div class="stat"><span class="muted">Expected price range</span><b>Awaiting data</b></div>
-      <div class="stat"><span class="muted">Signal</span><b>NO SIGNAL</b></div>
+      <div class="stat">
+        <span class="muted">Closing price (historical)</span>
+        <b id="close">--</b>
+      </div>
+      <div class="stat">
+        <span class="muted">Research signal</span>
+        <b id="signal">--</b>
+      </div>
+      <div class="stat">
+        <span class="muted">RSI (14)</span>
+        <b id="rsi">--</b>
+      </div>
+      <div class="stat">
+        <span class="muted">SMA 20</span>
+        <b id="sma20">--</b>
+      </div>
+      <div class="stat">
+        <span class="muted">SMA 50</span>
+        <b id="sma50">--</b>
+      </div>
+      <div class="stat">
+        <span class="muted">MACD / Signal line</span>
+        <b id="macd">--</b>
+      </div>
+      <div class="stat">
+        <span class="muted">Reported volume</span>
+        <b id="volume">--</b>
+      </div>
+      <div class="stat">
+        <span class="muted">Data date</span>
+        <b id="stockDate">--</b>
+      </div>
     </div>
-    <p class="muted" style="line-height:1.5">A real forecast requires licensed historical prices, a tested model, timestamped predictions and out-of-sample backtesting. No prediction is guaranteed.</p>
-  </section>
-  <section class="panel">
-    <div class="title">Morning report & accuracy</div>
-    <div class="muted">Daily journal will appear here when a backend is connected.</div>
-    <div class="statgrid">
-      <div class="stat"><span class="muted">Saved forecasts</span><b id="saved">0</b></div>
-      <div class="stat"><span class="muted">Verified accuracy</span><b>Not tested</b></div>
-    </div>
-    <div class="actions"><button class="secondary" id="notifyBtn">Notification test</button></div>
-    <p class="muted" id="notifyStatus">Browser notifications require permission and may not work when this is opened as a local file.</p>
+
+    <p class="muted status">
+      These indicators describe historical market conditions.
+      They do not establish a reliable next-session price target.
+    </p>
   </section>
 </main>
-<footer>PSX Daily Predictor • Prototype only • Not investment advice</footer>
+
+<footer>
+  PSX Daily Predictor • Historical research prototype • Not investment advice
+</footer>
+
 <script>
-const companies={UBL:"United Bank Limited",MEBL:"Meezan Bank Limited",MCB:"MCB Bank Limited",HBL:"Habib Bank Limited",FFC:"Fauji Fertilizer Company",EFERT:"Engro Fertilizers",OGDC:"Oil & Gas Development Company",PPL:"Pakistan Petroleum Limited",LUCK:"Lucky Cement",HUBC:"The Hub Power Company"};
-let watchlist=["UBL","MEBL","MCB","HBL","FFC","EFERT","OGDC","PPL","LUCK","HUBC"];
-const $=id=>document.getElementById(id);
-function render(){
-  $("stocks").innerHTML=watchlist.map((s,i)=>`<div class="stock"><div><div class="symbol">${esc(s)}</div><div class="company">${esc(companies[s]||"PSX-listed share")}</div></div><div class="right"><span class="pill">NO LIVE DATA</span><div class="small">Forecast unavailable</div></div></div>`).join("");
-  $("detail").innerHTML=watchlist.map(s=>`<option>${esc(s)}</option>`).join("");
-  $("saved").textContent=localStorage.getItem("psxForecastCount")||"0";
+const API_URL = "https://psx-daily-api.saim0aadhi.workers.dev/?view=signals";
+
+const companies = {
+  UBL: "United Bank Limited",
+  HBL: "Habib Bank Limited",
+  MEBL: "Meezan Bank Limited",
+  LUCK: "Lucky Cement",
+  FFC: "Fauji Fertilizer Company",
+  OGDC: "Oil & Gas Development Company",
+  PPL: "Pakistan Petroleum Limited",
+  PSO: "Pakistan State Oil",
+  SYS: "Systems Limited"
+};
+
+const $ = id => document.getElementById(id);
+let stocksData = [];
+
+function fmt(value, digits = 2) {
+  if (value === null || value === undefined || value === "") return "--";
+  const n = Number(value);
+  return Number.isFinite(n)
+    ? n.toLocaleString("en-PK", {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+      })
+    : "--";
 }
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-$("editBtn").onclick=()=> $("editArea").classList.toggle("hidden");
-$("saveBtn").onclick=()=>{let v=$("symbols").value.split(",").map(s=>s.trim().toUpperCase()).filter(Boolean);watchlist=[...new Set(v)].slice(0,30);localStorage.setItem("psxWatchlist",JSON.stringify(watchlist));render();$("editArea").classList.add("hidden")};
-$("refreshBtn").onclick=()=>{render();alert("Demo view refreshed. No live PSX data was requested or received.")};
-$("detail").onchange=()=>{$("direction").textContent="Awaiting data"};
-$("notifyBtn").onclick=async()=>{if(!("Notification"in window)){$("notifyStatus").textContent="Notifications are not supported by this browser.";return}let p=await Notification.requestPermission();$("notifyStatus").textContent=p==="granted"?"Permission granted. Scheduled alerts still require a hosted backend.":"Permission not granted."};
-try{const saved=JSON.parse(localStorage.getItem("psxWatchlist")||"null");if(saved&&saved.length)watchlist=saved}catch(e){}
-render();
-if("serviceWorker"in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+
+function fmtVolume(value) {
+  if (value === null || value === undefined || value === "") return "--";
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.round(n).toLocaleString("en-PK") : "--";
+}
+
+function signalClass(signal) {
+  const s = String(signal || "").toLowerCase();
+  if (s.includes("bullish")) return "up";
+  if (s.includes("bearish")) return "down";
+  return "flat";
+}
+
+function renderStocks() {
+  $("stocks").innerHTML = stocksData.map((s, i) => `
+    <div class="stock">
+      <div class="stockhead">
+        <div>
+          <div class="symbol">${s.symbol}</div>
+          <div class="company">${companies[s.symbol] || "PSX-listed share"}</div>
+        </div>
+        <span class="pill ${signalClass(s.signal)}">${s.signal || "Unclassified"}</span>
+      </div>
+      <div class="metrics">
+        <div class="metric">
+          <span>Historical close</span><b>Rs ${fmt(s.close)}</b>
+        </div>
+        <div class="metric">
+          <span>RSI (14)</span><b>${fmt(s.rsi14)}</b>
+        </div>
+        <div class="metric">
+          <span>SMA 20</span><b>${fmt(s.sma20)}</b>
+        </div>
+        <div class="metric">
+          <span>SMA 50</span><b>${fmt(s.sma50)}</b>
+        </div>
+        <div class="metric">
+          <span>MACD</span><b>${fmt(s.macd, 3)}</b>
+        </div>
+        <div class="metric">
+          <span>Volume</span><b>${fmtVolume(s.volume)}</b>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  $("detail").innerHTML = stocksData.map(s =>
+    `<option value="${s.symbol}">${s.symbol}</option>`
+  ).join("");
+
+  if (stocksData.length) showDetails(stocksData[0].symbol);
+}
+
+function showDetails(symbol) {
+  const s = stocksData.find(item => item.symbol === symbol);
+  if (!s) return;
+
+  $("close").textContent = "Rs " + fmt(s.close);
+  $("signal").textContent = s.signal || "Unclassified";
+  $("signal").style.color =
+    signalClass(s.signal) === "up" ? "#34d399" :
+    signalClass(s.signal) === "down" ? "#fb7185" : "#fbbf24";
+  $("rsi").textContent = fmt(s.rsi14);
+  $("sma20").textContent = fmt(s.sma20);
+  $("sma50").textContent = fmt(s.sma50);
+  $("macd").textContent = fmt(s.macd, 3) + " / " + fmt(s.macdSignal, 3);
+  $("volume").textContent = fmtVolume(s.volume);
+  $("stockDate").textContent = s.date || "--";
+}
+
+async function loadResearch() {
+  const btn = $("refreshBtn");
+  btn.disabled = true;
+  btn.textContent = "Loading...";
+  $("status").textContent = "Requesting historical research data...";
+  $("connection").textContent = "CONNECTING";
+
+  try {
+    const response = await fetch(API_URL, { cache: "no-store" });
+    if (!response.ok) throw new Error("Server returned HTTP " + response.status);
+
+    const result = await response.json();
+
+    if (!Array.isArray(result.stocks)) {
+      throw new Error("The Worker response did not contain a stocks list.");
+    }
+
+    stocksData = result.stocks;
+    $("dataDate").textContent = "Historical data date: " + (result.dataAsOf || "Not provided");
+    $("connection").textContent = "CONNECTED";
+    $("status").textContent =
+      stocksData.length + " stocks loaded. " +
+      (result.liveDataConnected ? "Live connection reported by backend." :
+      "Historical data only; live PSX prices are not connected.");
+
+    renderStocks();
+
+    if (stocksData.length === 0) {
+      $("status").textContent = "The backend returned no stock records.";
+    }
+  } catch (error) {
+    $("connection").textContent = "ERROR";
+    $("dataDate").textContent = "Data unavailable";
+    $("status").textContent =
+      "Could not load data: " + error.message +
+      " Check your Worker URL and deployment, then try again.";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Refresh research data";
+  }
+}
+
+$("refreshBtn").addEventListener("click", loadResearch);
+$("detail").addEventListener("change", event => showDetails(event.target.value));
+
+loadResearch();
+
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  navigator.serviceWorker.register("./sw.js").catch(() => {});
+}
 </script>
 </body>
 </html>
